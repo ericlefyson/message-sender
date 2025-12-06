@@ -3,18 +3,18 @@ import { useRepositories } from '../contexts/RepositoryContext';
 import type { Message } from '../types';
 
 interface UseChatOptions {
-  conversationId: string | null;
+  roomId: string | null; // Backend uses roomId for WebSocket
   userId: string | null;
 }
 
-export function useChat({ conversationId, userId }: UseChatOptions) {
+export function useChat({ roomId, userId }: UseChatOptions) {
   const { webSocketService } = useRepositories();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
-    if (!userId || !conversationId) return;
+    if (!userId || !roomId) return;
 
     // Register callbacks
     webSocketService.onConnectionChange(setIsConnected);
@@ -46,13 +46,13 @@ export function useChat({ conversationId, userId }: UseChatOptions) {
     });
 
     // Connect
-    webSocketService.connect(userId, conversationId);
+    webSocketService.connect(userId, roomId);
 
     // Cleanup
     return () => {
       webSocketService.disconnect();
     };
-  }, [conversationId, userId, webSocketService]);
+  }, [roomId, userId, webSocketService]);
 
   const sendMessage = useCallback((content: string) => {
     webSocketService.sendMessage(content);

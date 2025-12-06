@@ -18,7 +18,7 @@ export function ChatScreen({ conversationId, onBack }: ChatScreenProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   const { messages, sendMessage, isConnected, isTyping, sendTyping } = useChat({
-    conversationId,
+    roomId: conversation?.roomId || null,
     userId: user?.id || null,
   });
 

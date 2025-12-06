@@ -15,9 +15,9 @@ export class MockUserRepository implements IUserRepository {
     return this.store.getUserById(id);
   }
 
-  async getUserByNickname(nickname: string): Promise<User | null> {
+  async getUserByNickname(email: string): Promise<User | null> {
     await this.delay(200);
-    return this.store.getUserByNickname(nickname);
+    return this.store.getUserByNickname(email);
   }
 
   private delay(ms: number): Promise<void> {

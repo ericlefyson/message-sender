@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { RepositoryProvider } from './contexts/RepositoryContext';
 import { LoginScreen } from './components/LoginScreen';
+import { RegisterScreen } from './components/RegisterScreen';
 import { ConversationList } from './components/ConversationList';
 import { ChatScreen } from './components/ChatScreen';
 
 function AppContent() {
   const { user, isLoading } = useAuth();
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [showRegister, setShowRegister] = useState(false);
 
   if (isLoading) {
     return (
@@ -18,7 +20,10 @@ function AppContent() {
   }
 
   if (!user) {
-    return <LoginScreen />;
+    if (showRegister) {
+      return <RegisterScreen onBackToLogin={() => setShowRegister(false)} />;
+    }
+    return <LoginScreen onShowRegister={() => setShowRegister(true)} />;
   }
 
   if (activeConversationId) {

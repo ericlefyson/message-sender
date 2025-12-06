@@ -49,7 +49,7 @@ export function ConversationItem({ conversation, onClick, isActive }: Conversati
               {conversation.otherUser.name}
             </h3>
             <p className="text-xs text-gray-500 truncate">
-              {conversation.otherUser.nickname}
+              @{conversation.otherUser.nickname}
             </p>
           </div>
           {conversation.lastMessage && (

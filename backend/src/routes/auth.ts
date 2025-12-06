@@ -21,6 +21,7 @@ const router = Router();
  *             type: object
  *             required:
  *               - name
+ *               - nickname
  *               - email
  *               - password
  *             properties:
@@ -28,6 +29,10 @@ const router = Router();
  *                 type: string
  *                 description: Nome completo do usuário
  *                 example: João Silva
+ *               nickname:
+ *                 type: string
+ *                 description: Apelido único do usuário
+ *                 example: joaosilva
  *               email:
  *                 type: string
  *                 format: email
@@ -77,10 +82,10 @@ const router = Router();
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, nickname, email, password } = req.body;
 
     // Validações
-    if (!name || !email || !password) {
+    if (!name || !nickname || !email || !password) {
       return res.status(400).json({ error: 'Campos obrigatórios faltando' });
     }
 
@@ -89,9 +94,15 @@ router.post('/register', async (req, res) => {
     }
 
     // Verificar se email já existe
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
+    const existingEmail = await prisma.user.findUnique({ where: { email } });
+    if (existingEmail) {
       return res.status(409).json({ error: 'Email já cadastrado' });
+    }
+
+    // Verificar se nickname já existe
+    const existingNickname = await prisma.user.findUnique({ where: { nickname } });
+    if (existingNickname) {
+      return res.status(409).json({ error: 'Nickname já cadastrado' });
     }
 
     // Hash da senha
@@ -101,13 +112,17 @@ router.post('/register', async (req, res) => {
     const user = await prisma.user.create({
       data: {
         name,
+        nickname,
         email,
         password: hashedPassword,
       },
       select: {
         id: true,
         name: true,
+        nickname: true,
         email: true,
+        role: true,
+        isActive: true,
         createdAt: true,
       }
     });
@@ -240,7 +255,10 @@ router.post('/login', async (req, res) => {
       user: {
         id: user.id,
         name: user.name,
+        nickname: user.nickname,
         email: user.email,
+        role: user.role,
+        isActive: user.isActive,
       },
       accessToken,
       refreshToken
@@ -294,8 +312,10 @@ router.get('/me', authenticate, async (req: AuthRequest, res) => {
       select: {
         id: true,
         name: true,
+        nickname: true,
         email: true,
         role: true,
+        isActive: true,
         createdAt: true,
       }
     });

@@ -41,6 +41,7 @@ router.get('/all', async (req, res) => {
       select: {
         id: true,
         name: true,
+        nickname: true,
         email: true,
         role: true,
         isActive: true,
@@ -52,6 +53,78 @@ router.get('/all', async (req, res) => {
   } catch (error) {
     console.error('Erro ao buscar usuários:', error);
     res.status(500).json({ error: 'Erro ao buscar usuários' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/users/nickname/{nickname}:
+ *   get:
+ *     summary: Buscar usuário por nickname
+ *     description: Retorna os dados de um usuário específico pelo seu nickname
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: nickname
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Nickname do usuário
+ *         example: alicesilva
+ *     responses:
+ *       200:
+ *         description: Dados do usuário obtidos com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Não autenticado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Usuário não encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Erro interno do servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+// Buscar usuário por nickname
+router.get('/nickname/:nickname', async (req, res) => {
+  try {
+    const { nickname } = req.params;
+
+    const user = await prisma.user.findUnique({
+      where: { nickname: nickname.toLowerCase() },
+      select: {
+        id: true,
+        name: true,
+        nickname: true,
+        email: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error('Erro ao buscar usuário por nickname:', error);
+    res.status(500).json({ error: 'Erro ao buscar usuário' });
   }
 });
 
@@ -109,6 +182,7 @@ router.get('/:id', async (req, res) => {
       select: {
         id: true,
         name: true,
+        nickname: true,
         email: true,
         role: true,
         isActive: true,

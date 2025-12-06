@@ -15,25 +15,48 @@ export class ApiConversationRepository implements IConversationRepository {
   }
 
   async getConversations(): Promise<Conversation[]> {
-    // Backend doesn't have a conversations endpoint
-    // This would need to be implemented on the backend
-    // For now, return empty array or throw error
-    console.warn('Backend does not have /api/conversations endpoint');
-    return [];
+    const response = await fetch(`${API_URL}/api/conversations`, {
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error('Falha ao carregar conversas');
+    }
+
+    return await response.json();
   }
 
   async getConversationById(id: string): Promise<Conversation | null> {
-    // Backend doesn't have a conversations endpoint
-    // This would need to be implemented on the backend
-    console.warn('Backend does not have /api/conversations/:id endpoint');
-    return null;
+    const response = await fetch(`${API_URL}/api/conversations/${id}`, {
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error('Falha ao carregar conversa');
+    }
+
+    return await response.json();
   }
 
   async createConversation(otherUserId: string): Promise<Conversation> {
-    // Backend doesn't have a conversations endpoint
-    // This would need to be implemented on the backend
-    console.warn('Backend does not have POST /api/conversations endpoint');
-    throw new Error('Conversations endpoint not implemented in backend');
+    const response = await fetch(`${API_URL}/api/conversations`, {
+      method: 'POST',
+      headers: {
+        ...this.getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ otherUserId }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Falha ao criar conversa');
+    }
+
+    return await response.json();
   }
 
   async getMessages(conversationId: string): Promise<Message[]> {
@@ -56,7 +79,10 @@ export class ApiConversationRepository implements IConversationRepository {
       sender: {
         id: msg.sender.id,
         name: msg.sender.name,
-        nickname: msg.sender.email, // Backend uses email instead of nickname
+        nickname: msg.sender.nickname,
+        email: msg.sender.email,
+        role: msg.sender.role,
+        isActive: msg.sender.isActive,
         createdAt: msg.sender.createdAt,
       },
       conversationId: msg.roomId,

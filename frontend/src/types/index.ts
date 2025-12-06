@@ -1,8 +1,10 @@
 export interface User {
   id: string;
   name: string;
-  nickname: string; // Used as email in API mode (backend uses email)
-  email?: string;   // Optional for compatibility with backend
+  nickname: string;  // Unique nickname for user identification
+  email: string;     // Email used only for authentication
+  role?: string;     // Optional: 'user' | 'admin'
+  isActive?: boolean;
   createdAt: string;
 }
 
@@ -10,6 +12,7 @@ export interface Conversation {
   id: string;
   userId1: string;
   userId2: string;
+  roomId?: string;        // Optional for backward compatibility with mock data
   otherUser: User;        // The other participant (not current user)
   lastMessage?: Message;
   unreadCount: number;

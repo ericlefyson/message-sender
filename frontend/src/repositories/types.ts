@@ -2,7 +2,8 @@ import type { User, Conversation, Message } from '../types';
 
 // Repository interfaces - abstract the data layer
 export interface IAuthRepository {
-  login(nickname: string, password: string): Promise<User>;
+  login(email: string, password: string): Promise<User>;
+  register(name: string, nickname: string, email: string, password: string): Promise<User>;
   logout(): Promise<void>;
 }
 

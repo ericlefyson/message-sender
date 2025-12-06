@@ -191,7 +191,10 @@ export class ApiWebSocketService implements IWebSocketService {
       sender: {
         id: msg.sender.id,
         name: msg.sender.name,
-        nickname: msg.sender.email || msg.sender.name, // Backend uses email
+        nickname: msg.sender.nickname,
+        email: msg.sender.email,
+        role: msg.sender.role,
+        isActive: msg.sender.isActive,
         createdAt: msg.sender.createdAt,
       },
       conversationId: msg.roomId,

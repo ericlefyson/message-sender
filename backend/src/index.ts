@@ -7,6 +7,7 @@ import { setupWebSocket } from './websocket';
 import messagesRouter from './routes/messages';
 import usersRouter from './routes/users';
 import authRouter from './routes/auth';
+import conversationsRouter from './routes/conversations';
 import { authenticate } from './middleware/authenticate';
 import { swaggerSpec } from './config/swagger';
 
@@ -41,6 +42,7 @@ app.use('/api/auth', authRouter);
 // Rotas protegidas (requerem autenticação)
 app.use('/api/messages', authenticate, messagesRouter);
 app.use('/api/users', authenticate, usersRouter);
+app.use('/api/conversations', authenticate, conversationsRouter);
 
 // Health check
 app.get('/health', (req, res) => {

@@ -39,13 +39,21 @@ export class ApiUserRepository implements IUserRepository {
   }
 
   async getUserByNickname(nickname: string): Promise<User | null> {
-    // Backend doesn't have this endpoint - need to fetch all users and filter
-    // This is not efficient but matches the interface
     try {
-      const users = await this.getUsers();
-      return users.find(u => u.nickname === nickname || u.email === nickname) || null;
+      const response = await fetch(`${API_URL}/api/users/nickname/${encodeURIComponent(nickname)}`, {
+        headers: this.getAuthHeaders(),
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
+        throw new Error('Falha ao buscar usuário');
+      }
+
+      return await response.json();
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('Error fetching user by nickname:', error);
       return null;
     }
   }

@@ -49,10 +49,15 @@ const options: swaggerJsdoc.Options = {
               description: 'Nome do usuário',
               example: 'João Silva'
             },
+            nickname: {
+              type: 'string',
+              description: 'Apelido único do usuário',
+              example: 'joaosilva'
+            },
             email: {
               type: 'string',
               format: 'email',
-              description: 'Email do usuário',
+              description: 'Email do usuário (usado apenas para autenticação)',
               example: 'joao@example.com'
             },
             role: {

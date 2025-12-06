@@ -33,8 +33,7 @@ export function AddUserModal({ isOpen, onClose, onUserAdded }: AddUserModalProps
     setFoundUser(null);
 
     try {
-      const cleanNickname = nickname.trim().startsWith('@') ? nickname.trim() : `@${nickname.trim()}`;
-      const user = await userRepository.getUserByNickname(cleanNickname);
+      const user = await userRepository.getUserByNickname(nickname.trim());
 
       if (!user) {
         setError('Usuário não encontrado');
@@ -103,7 +102,7 @@ export function AddUserModal({ isOpen, onClose, onUserAdded }: AddUserModalProps
                 type="text"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
-                placeholder="@usuario ou usuario"
+                placeholder="usuario123"
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                 disabled={isSearching || isAdding}
                 autoFocus
@@ -116,9 +115,6 @@ export function AddUserModal({ isOpen, onClose, onUserAdded }: AddUserModalProps
                 {isSearching ? 'Buscando...' : 'Buscar'}
               </button>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              O @ será adicionado automaticamente se você não incluir
-            </p>
           </div>
 
           {error && (
@@ -131,7 +127,7 @@ export function AddUserModal({ isOpen, onClose, onUserAdded }: AddUserModalProps
             <div className="border border-gray-200 rounded-lg p-4 space-y-3">
               <div>
                 <p className="font-medium text-gray-800">{foundUser.name}</p>
-                <p className="text-sm text-gray-500">{foundUser.nickname}</p>
+                <p className="text-sm text-gray-500">@{foundUser.nickname}</p>
               </div>
               <button
                 type="button"

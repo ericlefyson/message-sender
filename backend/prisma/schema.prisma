@@ -13,25 +13,46 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  name      String
-  email     String    @unique
-  password  String
-  role      String    @default("user")
-  isActive  Boolean   @default(true)
-  lastLogin DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  messages  Message[]
+  id                    String         @id @default(uuid())
+  name                  String
+  nickname              String         @unique
+  email                 String         @unique
+  password              String
+  role                  String         @default("user")
+  isActive              Boolean        @default(true)
+  lastLogin             DateTime?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  messages              Message[]
+  conversationsInitiated Conversation[] @relation("ConversationUser1")
+  conversationsReceived  Conversation[] @relation("ConversationUser2")
 
   @@map("users")
 }
 
+model Conversation {
+  id        String   @id @default(uuid())
+  userId1   String
+  user1     User     @relation("ConversationUser1", fields: [userId1], references: [id], onDelete: Cascade)
+  userId2   String
+  user2     User     @relation("ConversationUser2", fields: [userId2], references: [id], onDelete: Cascade)
+  roomId    String   @unique
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId1, userId2])
+  @@index([userId1])
+  @@index([userId2])
+  @@map("conversations")
+}
+
 model Room {
-  id        String    @id @default(uuid())
-  name      String?
-  createdAt DateTime  @default(now())
-  messages  Message[]
+  id           String        @id @default(uuid())
+  name         String?
+  createdAt    DateTime      @default(now())
+  messages     Message[]
+  conversation Conversation?
 
   @@map("rooms")
 }

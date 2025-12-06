@@ -3,8 +3,12 @@ import { useAuth } from "../contexts/AuthContext";
 import { useRepositories } from "../contexts/RepositoryContext";
 import logo from "../assets/images/logos/logo.png";
 
-export function LoginScreen() {
-  const [nickname, setNickname] = useState("");
+interface LoginScreenProps {
+  onShowRegister: () => void;
+}
+
+export function LoginScreen({ onShowRegister }: LoginScreenProps) {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -14,8 +18,8 @@ export function LoginScreen() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!nickname.trim()) {
-      setError("Por favor, digite seu nickname");
+    if (!email.trim()) {
+      setError("Por favor, digite seu email");
       return;
     }
 
@@ -28,10 +32,7 @@ export function LoginScreen() {
     setError("");
 
     try {
-      const cleanNickname = nickname.trim().startsWith("@")
-        ? nickname.trim()
-        : `@${nickname.trim()}`;
-      const user = await authRepository.login(cleanNickname, password.trim());
+      const user = await authRepository.login(email.trim(), password.trim());
       login(user);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao fazer login");
@@ -52,23 +53,20 @@ export function LoginScreen() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
-              htmlFor="nickname"
+              htmlFor="email"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Nickname
+              Email
             </label>
             <input
-              id="nickname"
-              type="text"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              placeholder="@joao ou joao"
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seu@email.com"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
               disabled={isLoading}
             />
-            <p className="text-xs text-gray-500 mt-1">
-              O @ será adicionado automaticamente se você não incluir
-            </p>
           </div>
 
           <div>
@@ -102,6 +100,17 @@ export function LoginScreen() {
           >
             {isLoading ? "Entrando..." : "Entrar"}
           </button>
+
+          <div className="text-center pt-4">
+            <button
+              type="button"
+              onClick={onShowRegister}
+              className="text-blue-500 hover:text-blue-600 text-sm font-medium transition"
+              disabled={isLoading}
+            >
+              Não tem uma conta? Criar conta
+            </button>
+          </div>
         </form>
       </div>
     </div>

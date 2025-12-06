@@ -9,19 +9,22 @@ export class MockDataStore {
     {
       id: 'user-1',
       name: 'Alice Silva',
-      nickname: '@alice',
+      nickname: 'alicesilva',
+      email: 'alice@example.com',
       createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
     },
     {
       id: 'user-2',
       name: 'Bob Santos',
-      nickname: '@bob',
+      nickname: 'bobsantos',
+      email: 'bob@example.com',
       createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
     },
     {
       id: 'user-3',
       name: 'Carlos Lima',
-      nickname: '@carlos',
+      nickname: 'carloslima',
+      email: 'carlos@example.com',
       createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
     },
   ];
@@ -68,21 +71,37 @@ export class MockDataStore {
   }
 
   getUserByNickname(nickname: string): User | null {
-    const cleanNickname = nickname.startsWith('@') ? nickname : `@${nickname}`;
-    return this.users.find(u => u.nickname.toLowerCase() === cleanNickname.toLowerCase()) || null;
+    return this.users.find(u => u.nickname.toLowerCase() === nickname.toLowerCase()) || null;
   }
 
-  createOrGetUser(nickname: string): User {
-    const existing = this.users.find(u => u.nickname === nickname);
+  getUsers(): User[] {
+    return this.users;
+  }
+
+  createOrGetUser(email: string): User {
+    const existing = this.users.find(u => u.email === email);
     if (existing) {
       return existing;
     }
 
-    const cleanNickname = nickname.startsWith('@') ? nickname : `@${nickname}`;
+    const emailPrefix = email.split('@')[0];
     const newUser: User = {
       id: `user-${Date.now()}`,
-      name: cleanNickname,
-      nickname: cleanNickname,
+      name: emailPrefix,
+      nickname: emailPrefix.toLowerCase(),
+      email: email,
+      createdAt: new Date().toISOString(),
+    };
+    this.users.push(newUser);
+    return newUser;
+  }
+
+  createUserWithName(name: string, nickname: string, email: string): User {
+    const newUser: User = {
+      id: `user-${Date.now()}`,
+      name: name,
+      nickname: nickname,
+      email: email,
       createdAt: new Date().toISOString(),
     };
     this.users.push(newUser);
