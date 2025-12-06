@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { RepositoryProvider } from './contexts/RepositoryContext';
 import { LoginScreen } from './components/LoginScreen';
 import { ConversationList } from './components/ConversationList';
 import { ChatScreen } from './components/ChatScreen';
@@ -39,9 +40,11 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <RepositoryProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </RepositoryProvider>
   );
 }
 

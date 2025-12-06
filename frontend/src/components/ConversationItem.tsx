@@ -44,9 +44,14 @@ export function ConversationItem({ conversation, onClick, isActive }: Conversati
       {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-1">
-          <h3 className="font-semibold text-gray-900 truncate">
-            {conversation.otherUser.name}
-          </h3>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-gray-900 truncate">
+              {conversation.otherUser.name}
+            </h3>
+            <p className="text-xs text-gray-500 truncate">
+              {conversation.otherUser.nickname}
+            </p>
+          </div>
           {conversation.lastMessage && (
             <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
               {formatTime(conversation.lastMessage.createdAt)}

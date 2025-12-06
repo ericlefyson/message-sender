@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useWebSocket } from '../hooks/useWebSocket';
+import { useRepositories } from '../contexts/RepositoryContext';
+import { useChat } from '../hooks/useChat';
 import type { Conversation } from '../types';
 import { MessageList } from './MessageList';
 import { MessageInput } from './MessageInput';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 interface ChatScreenProps {
   conversationId: string;
@@ -14,10 +13,11 @@ interface ChatScreenProps {
 
 export function ChatScreen({ conversationId, onBack }: ChatScreenProps) {
   const { user } = useAuth();
+  const { conversationRepository } = useRepositories();
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const { messages, sendMessage, isConnected, isTyping, sendTyping } = useWebSocket({
+  const { messages, sendMessage, isConnected, isTyping, sendTyping } = useChat({
     conversationId,
     userId: user?.id || null,
   });
@@ -30,17 +30,7 @@ export function ChatScreen({ conversationId, onBack }: ChatScreenProps) {
     if (!user) return;
 
     try {
-      const response = await fetch(`${API_URL}/api/conversations/${conversationId}`, {
-        headers: {
-          'Authorization': `Bearer ${user.id}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Falha ao carregar conversa');
-      }
-
-      const data = await response.json();
+      const data = await conversationRepository.getConversationById(conversationId);
       setConversation(data);
     } catch (err) {
       console.error('Erro ao carregar conversa:', err);

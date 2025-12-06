@@ -2,6 +2,17 @@
 
 Real-time 1:1 chat application built with React 18, TypeScript, Vite, and TailwindCSS.
 
+## ⚡ Quick Start (No Backend Required!)
+
+```bash
+npm install
+npm run dev
+```
+
+Visit `http://localhost:5173` - **The app works immediately with mock data!**
+
+No backend needed for development. Switch to real API when ready by changing one environment variable.
+
 ## Features
 
 - **User Authentication**: Login with username, session persisted in localStorage
@@ -12,6 +23,7 @@ Real-time 1:1 chat application built with React 18, TypeScript, Vite, and Tailwi
 - **Read Receipts**: Double checkmark for read messages
 - **Message History**: Grouped by date with "Today", "Yesterday" labels
 - **Mobile-Responsive**: Optimized for all screen sizes
+- **🎭 Mock Mode**: Realistic mock data for development without backend
 
 ## Tech Stack
 
@@ -20,6 +32,7 @@ Real-time 1:1 chat application built with React 18, TypeScript, Vite, and Tailwi
 - **Vite** - Build tool and dev server
 - **TailwindCSS** - Utility-first CSS framework
 - **WebSocket** - Real-time communication
+- **Repository Pattern** - Clean abstraction for mock/API switching
 
 ## Project Structure
 
@@ -47,10 +60,34 @@ src/
 
 ## Getting Started
 
+## 🎭 Mock vs API Mode
+
+This app uses the **Repository Pattern** to easily switch between mock data and real API:
+
+### Development Mode (Mock - Default)
+```env
+VITE_REPOSITORY_MODE=mock
+```
+- ✅ No backend required
+- ✅ Realistic mock data with delays
+- ✅ Simulated WebSocket behavior
+- ✅ Pre-populated users and conversations
+- ✅ Auto-responses (50% chance)
+
+### Production Mode (API)
+```env
+VITE_REPOSITORY_MODE=api
+```
+- ✅ Real backend integration
+- ✅ Actual WebSocket connections
+- ✅ Database persistence
+
+**See [REPOSITORY_PATTERN.md](REPOSITORY_PATTERN.md) for detailed documentation.**
+
 ### Prerequisites
 
 - Node.js 18+ installed
-- Backend server running (see `../backend/README.md`)
+- Backend server running (only for `api` mode)
 
 ### Installation
 
