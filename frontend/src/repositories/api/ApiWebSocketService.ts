@@ -19,27 +19,45 @@ export class ApiWebSocketService implements IWebSocketService {
     this.conversationId = conversationId;
 
     try {
-      this.ws = new WebSocket(`${WS_URL}?userId=${userId}`);
+      // Backend expects JWT token in query string, not userId
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.error('No access token found for WebSocket connection');
+        return;
+      }
+
+      this.ws = new WebSocket(`${WS_URL}?token=${token}`);
 
       this.ws.onopen = () => {
         console.log('WebSocket connected');
-        this.notifyConnectionChange(true);
-
-        // Join the conversation room
-        this.send({
-          type: 'join',
-          payload: { conversationId }
-        });
+        // Wait for authentication confirmation before notifying
       };
 
       this.ws.onmessage = (event) => {
         try {
           const data: WebSocketMessage = JSON.parse(event.data);
-          this.handleMessage(data);
+
+          // Handle authentication confirmation
+          if (data.type === 'authenticated') {
+            console.log('WebSocket authenticated:', data.payload);
+            this.notifyConnectionChange(true);
+
+            // Now join the room (backend uses roomId, not conversationId)
+            this.send({
+              type: 'join',
+              payload: {
+                userId: data.payload.userId,
+                roomId: conversationId
+              }
+            });
+          } else {
+            this.handleMessage(data);
+          }
         } catch (error) {
           console.error('Failed to parse WebSocket message:', error);
         }
       };
+
 
       this.ws.onerror = (error) => {
         console.error('WebSocket error:', error);
@@ -76,34 +94,28 @@ export class ApiWebSocketService implements IWebSocketService {
       return;
     }
 
+    // Backend expects roomId, not conversationId
     this.send({
       type: 'message',
       payload: {
         content,
-        conversationId: this.conversationId
+        roomId: this.conversationId
       }
     });
   }
 
   sendTyping(isTyping: boolean): void {
+    // Backend doesn't support typing events yet
+    // This is a no-op for now
     if (!this.isConnected()) return;
-
-    this.send({
-      type: 'typing',
-      payload: {
-        conversationId: this.conversationId,
-        isTyping
-      }
-    });
+    console.warn('Typing indicators not yet supported by backend');
   }
 
   markAsRead(messageId: string): void {
+    // Backend doesn't support read receipts yet
+    // This is a no-op for now
     if (!this.isConnected()) return;
-
-    this.send({
-      type: 'read',
-      payload: { messageId }
-    });
+    console.warn('Read receipts not yet supported by backend');
   }
 
   // Register callbacks
@@ -141,25 +153,51 @@ export class ApiWebSocketService implements IWebSocketService {
   private handleMessage(data: WebSocketMessage): void {
     switch (data.type) {
       case 'history':
-        this.historyCallbacks.forEach(cb => cb(data.payload.messages || []));
+        // Backend sends array directly, not wrapped in messages
+        const historyMessages = Array.isArray(data.payload) ? data.payload : [];
+        // Transform backend format to frontend format
+        const transformedHistory = historyMessages.map((msg: any) => this.transformMessage(msg));
+        this.historyCallbacks.forEach(cb => cb(transformedHistory));
         break;
 
       case 'message':
-        this.messageCallbacks.forEach(cb => cb(data.payload));
+        // Transform backend message format
+        const transformedMsg = this.transformMessage(data.payload);
+        this.messageCallbacks.forEach(cb => cb(transformedMsg));
         break;
 
-      case 'typing':
-        this.typingCallbacks.forEach(cb => cb(data.payload.isTyping));
+      case 'join':
+        console.log('User joined:', data.payload);
         break;
 
-      case 'read':
-        this.readCallbacks.forEach(cb => cb(data.payload.messageId));
+      case 'leave':
+        console.log('User left:', data.payload);
         break;
 
       case 'error':
         console.error('WebSocket error:', data.payload);
         break;
+
+      default:
+        console.warn('Unknown WebSocket message type:', data.type);
     }
+  }
+
+  private transformMessage(msg: any): Message {
+    return {
+      id: msg.id,
+      content: msg.content,
+      senderId: msg.senderId,
+      sender: {
+        id: msg.sender.id,
+        name: msg.sender.name,
+        nickname: msg.sender.email || msg.sender.name, // Backend uses email
+        createdAt: msg.sender.createdAt,
+      },
+      conversationId: msg.roomId,
+      createdAt: msg.createdAt,
+      read: false, // Backend doesn't track read status yet
+    };
   }
 
   private notifyConnectionChange(isConnected: boolean): void {

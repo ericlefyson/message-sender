@@ -4,17 +4,19 @@ import type { User } from '../../types';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export class ApiUserRepository implements IUserRepository {
-  private userId: string | null = null;
-
-  setCurrentUserId(userId: string) {
-    this.userId = userId;
+  private getAuthHeaders(): HeadersInit {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('No access token found');
+    }
+    return {
+      'Authorization': `Bearer ${token}`,
+    };
   }
 
   async getUsers(): Promise<User[]> {
-    const response = await fetch(`${API_URL}/api/users`, {
-      headers: {
-        'Authorization': `Bearer ${this.userId}`,
-      },
+    const response = await fetch(`${API_URL}/api/users/all`, {
+      headers: this.getAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -26,9 +28,7 @@ export class ApiUserRepository implements IUserRepository {
 
   async getUserById(id: string): Promise<User | null> {
     const response = await fetch(`${API_URL}/api/users/${id}`, {
-      headers: {
-        'Authorization': `Bearer ${this.userId}`,
-      },
+      headers: this.getAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -39,16 +39,14 @@ export class ApiUserRepository implements IUserRepository {
   }
 
   async getUserByNickname(nickname: string): Promise<User | null> {
-    const response = await fetch(`${API_URL}/api/users/nickname/${encodeURIComponent(nickname)}`, {
-      headers: {
-        'Authorization': `Bearer ${this.userId}`,
-      },
-    });
-
-    if (!response.ok) {
+    // Backend doesn't have this endpoint - need to fetch all users and filter
+    // This is not efficient but matches the interface
+    try {
+      const users = await this.getUsers();
+      return users.find(u => u.nickname === nickname || u.email === nickname) || null;
+    } catch (error) {
+      console.error('Error fetching users:', error);
       return null;
     }
-
-    return await response.json();
   }
 }

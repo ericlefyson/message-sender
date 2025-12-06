@@ -10,19 +10,31 @@ export class ApiAuthRepository implements IAuthRepository {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name, nickname, password }),
+      body: JSON.stringify({ email: nickname, password }),
     });
 
     if (!response.ok) {
       throw new Error('Falha ao fazer login');
     }
 
-    return await response.json();
+    const data = await response.json();
+
+    // Store tokens in localStorage
+    if (data.accessToken) {
+      localStorage.setItem('accessToken', data.accessToken);
+    }
+    if (data.refreshToken) {
+      localStorage.setItem('refreshToken', data.refreshToken);
+    }
+
+    // Return user object
+    return data.user;
   }
 
   async logout(): Promise<void> {
-    // In a real app, you might call a logout endpoint
-    // For now, just clear client-side state
+    // Clear tokens from localStorage
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     return Promise.resolve();
   }
 }

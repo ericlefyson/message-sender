@@ -1,7 +1,8 @@
 export interface User {
   id: string;
   name: string;
-  nickname: string;
+  nickname: string; // Used as email in API mode (backend uses email)
+  email?: string;   // Optional for compatibility with backend
   createdAt: string;
 }
 
@@ -26,6 +27,6 @@ export interface Message {
 }
 
 export interface WebSocketMessage {
-  type: 'message' | 'join' | 'leave' | 'history' | 'typing' | 'read' | 'error';
+  type: 'message' | 'join' | 'leave' | 'history' | 'typing' | 'read' | 'error' | 'authenticated';
   payload: any;
 }
