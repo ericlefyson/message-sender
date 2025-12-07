@@ -12,6 +12,9 @@ import { authenticate } from './middleware/authenticate';
 import { swaggerSpec } from './config/swagger';
 
 dotenv.config();
+const safeDbUrl = process.env.DATABASE_URL
+  ?.replace(/(postgresql:\/\/)([^:]+):([^@]+)@/, '$1****:****@'); // mascara user/senha
+console.log('DATABASE_URL em runtime:', safeDbUrl);
 
 const app = express();
 const server = createServer(app);
