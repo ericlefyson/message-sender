@@ -17,10 +17,30 @@ const app = express();
 const server = createServer(app);
 
 // Middlewares
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true
-}));
+const allowedOrigins = [
+  process.env.FRONTEND_URL,      // domínio da Vercel
+  'http://localhost:5173',       // dev Vite
+  'http://localhost:3000',       // dev Next (se precisar)
+].filter(Boolean); // remove undefined
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      // requests sem origin (ex: Postman) – libera
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.log('CORS bloqueado para origin:', origin);
+      return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+  }),
+);
 app.use(express.json());
 
 // Documentação Swagger
