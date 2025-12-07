@@ -3,6 +3,7 @@ import prisma from '../lib/prisma';
 import { hashPassword, comparePassword } from '../utils/password';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt';
 import { authenticate, AuthRequest } from '../middleware/authenticate';
+import { validatePasswordStrength, validateEmail, validateNickname } from '../utils/validation';
 
 const router = Router();
 
@@ -84,13 +85,26 @@ router.post('/register', async (req, res) => {
   try {
     const { name, nickname, email, password } = req.body;
 
-    // Validações
+    // Required field validation
     if (!name || !nickname || !email || !password) {
-      return res.status(400).json({ error: 'Campos obrigatórios faltando' });
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Senha deve ter no mínimo 6 caracteres' });
+    // Email validation
+    if (!validateEmail(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    // Nickname validation
+    const nicknameValidation = validateNickname(nickname);
+    if (!nicknameValidation.valid) {
+      return res.status(400).json({ error: nicknameValidation.error });
+    }
+
+    // Password strength validation
+    const passwordValidation = validatePasswordStrength(password);
+    if (!passwordValidation.valid) {
+      return res.status(400).json({ error: passwordValidation.error });
     }
 
     // Verificar se email já existe

@@ -100,9 +100,9 @@ router.get('/', async (req: AuthRequest, res) => {
           conversationId: conv.id,
           roomId: conv.roomId,
           createdAt: lastMessage.createdAt,
-          read: false, // TODO: implement read status
+          read: false, // Read status tracking not implemented yet
         } : undefined,
-        unreadCount: 0, // TODO: implement unread count
+        unreadCount: 0, // Unread count tracking not implemented yet
         updatedAt: conv.updatedAt,
       };
     });

@@ -1,7 +1,27 @@
 import type { IWebSocketService } from '../types';
 import type { Message, WebSocketMessage } from '../../types';
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3001';
+/**
+ * Get WebSocket URL with automatic protocol detection
+ * - Uses environment variable if set
+ * - Automatically uses wss:// for HTTPS pages, ws:// for HTTP pages
+ */
+const getWebSocketUrl = (): string => {
+  const envUrl = import.meta.env.VITE_WS_URL;
+
+  if (envUrl) {
+    return envUrl;
+  }
+
+  // Auto-detect protocol based on current page
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const host = window.location.hostname;
+  const port = import.meta.env.VITE_WS_PORT || '3001';
+
+  return `${protocol}//${host}:${port}`;
+};
+
+const WS_URL = getWebSocketUrl();
 
 export class ApiWebSocketService implements IWebSocketService {
   private ws: WebSocket | null = null;
