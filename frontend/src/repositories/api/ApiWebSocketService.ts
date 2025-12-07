@@ -104,14 +104,14 @@ export class ApiWebSocketService implements IWebSocketService {
     });
   }
 
-  sendTyping(isTyping: boolean): void {
+  sendTyping(_isTyping: boolean): void {
     // Backend doesn't support typing events yet
     // This is a no-op for now
     if (!this.isConnected()) return;
     console.warn('Typing indicators not yet supported by backend');
   }
 
-  markAsRead(messageId: string): void {
+  markAsRead(_messageId: string): void {
     // Backend doesn't support read receipts yet
     // This is a no-op for now
     if (!this.isConnected()) return;

@@ -5,7 +5,7 @@ import { MockDataStore } from './mockData';
 export class MockAuthRepository implements IAuthRepository {
   private store = MockDataStore.getInstance();
 
-  async login(email: string, password: string): Promise<User> {
+  async login(email: string, _password: string): Promise<User> {
     // Simulate API delay
     await this.delay(500);
 
@@ -21,7 +21,7 @@ export class MockAuthRepository implements IAuthRepository {
     return user;
   }
 
-  async register(name: string, nickname: string, email: string, password: string): Promise<User> {
+  async register(name: string, nickname: string, email: string, _password: string): Promise<User> {
     // Simulate API delay
     await this.delay(500);
 
