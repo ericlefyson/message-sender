@@ -4,14 +4,13 @@ import { Pool } from 'pg';
 
 // Configuração do Prisma Client com adapter para Prisma 7
 const prismaClientSingleton = () => {
-  // Configurar Pool com credenciais explícitas para evitar problemas com SCRAM
+  // Use DATABASE_URL from environment, fallback to local config for development
+  const connectionString = process.env.DATABASE_URL;
+
   const pool = new Pool({
-    host: 'localhost',
-    port: 5432,
-    database: 'chat_db',
-    user: 'user',
-    password: 'password',
-    ssl: false
+    connectionString,
+    // SSL is required for Neon and most cloud PostgreSQL providers
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
   });
 
   const adapter = new PrismaPg(pool);
